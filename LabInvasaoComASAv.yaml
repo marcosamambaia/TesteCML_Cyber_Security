@@ -1,0 +1,422 @@
+annotations:
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: Atacante VLAN 20
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -640.0
+    y1: 360.0
+    z_index: 0
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: Vítima VLAN 10
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -600.0
+    y1: 200.0
+    z_index: 1
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      Na VLAN 20, o gateway padrão dos dispositivos
+       é o ASAv (192.168.20.254), que atua como
+       firewall de borda. Após a inspeção, o tráfego
+       é encaminhado ao roteador (192.168.20.1), responsável
+       pelo roteamento inter-VLAN. Essa separação de
+       funções permite aplicar segurança granular sem
+       comprometer o desempenho do roteamento.
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: 120.0
+    y1: 120.0
+    z_index: 2
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |2+
+       Simulações de ataque que você pode fazer
+      🔹 1. Ping (ICMP) – reconhecimento básico
+      ping -c 4 192.168.10.10
+
+
+      Simula um atacante tentando descobrir se
+      o PC2 está ativo. Se a ACL estiver
+      bloqueando IP, esse teste deve falhar.
+
+
+      🔹 2. Nmap – varredura de portas
+      nmap -sS -T4 -Pn 192.168.10.10
+
+
+      Realiza uma varredura TCP stealth (SYN scan)
+       para detectar serviços abertos no PC2.
+
+      - -sS: stealth scan
+      - -T4: velocidade agressiva
+      - -Pn: ignora ping (caso ICMP esteja bloqueado)
+
+      🔹 3. Hping3 – ataque de negação de serviço (DoS)
+      sudo hping3 -S -p 80 --flood 192.168.10.10
+
+
+      Simula um ataque de flood TCP na porta 80.
+       Ideal para testar se o ASAv consegue
+      conter tráfego excessivo.
+
+
+      🔹 4. Arp-scan – descoberta de dispositivos
+       na VLAN
+      sudo arp-scan --interface=ens2 --localnet
+
+
+      Mapeia todos os dispositivos conectados à
+      mesma VLAN que o atacante. Útil para
+      simular reconhecimento lateral.
+
+
+       Como o ASAv reage
+      - Se a ACL estiver ativa (deny ip any any),
+       todos esses testes devem falhar
+      - Você pode refinar a ACL para permitir
+      certos protocolos e bloquear outros
+      Exemplo:
+      access-list attacker-deny extended deny icmp any any
+      access-list attacker-deny extended deny tcp any any eq 80
+      access-group attacker-deny in interface attacker
+
+
+
+      Documentação técnica
+      A simulação de ataques foi realizada a partir
+       da VLAN 20, com ferramentas como ping, nmap, hping3
+       e arp-scan. O ASAv atuou como firewall de
+       borda, bloqueando o tráfego de saída
+      conforme as ACLs configuradas. Essa
+      abordagem permite validar a eficácia das
+       políticas de segurança e treinar respostas
+       a cenários reais de intrusão.
+
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -1320.0
+    y1: -40.0
+    z_index: 3
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |+
+      # ================================
+      # Testes esperados a partir do PC1 (atacante)
+      # Topologia com ASAv ativo e ACL aplicada
+      # ================================
+
+      # Objetivo: validar a eficácia do firewall (ASAv) na VLAN 20
+      # ACL configurada: access-list attacker-deny extended deny ip any any
+
+      # ------------------------------------------------------------
+      # Ferramenta     | Comando sugerido                          | Objetivo do teste                      | Resultado esperado
+      # ------------------------------------------------------------
+      # Ping           | ping -c 4 192.168.10.10                    | Testar conectividade básica (ICMP)     | ❌ Bloqueado pelo ASAv
+      # Nmap           | nmap -sS -Pn 192.168.10.10                 | Varredura de portas TCP                | ❌ Sem resposta / portas filtradas
+      # Hping3         | sudo hping3 -S -p 80 --flood 192.168.10.10 | Simular ataque DoS na porta 80         | ❌ Bloqueado / sem efeito
+      # Arp-scan       | sudo arp-scan --interface=ens2 --localnet | Descoberta de dispositivos na VLAN 20  | ✅ Funciona (camada 2, não passa pelo ASAv)
+
+      # Observações:
+      # - O ASAv bloqueia tráfego IP de saída da VLAN 20.
+      # - O arp-scan funciona porque opera na camada 2 (não roteado).
+      # - Os testes demonstram a diferença entre rede protegida e vulnerável.
+
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -720.0
+    y1: 480.0
+    z_index: 4
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      🖥️ PC1 – Atacante (VLAN 20)
+      🔹 Cenário com ASAv ativo
+
+      # /etc/netplan/01-netcfg.yaml
+      network:
+        version: 2
+        renderer: networkd
+        ethernets:
+          ens2:
+            dhcp4: false
+            addresses:
+              - 192.168.20.10/24
+            gateway4: 192.168.20.254
+            nameservers:
+              addresses:
+                - 8.8.8.8
+                - 1.1.1.1
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -840.0
+    y1: -200.0
+    z_index: 5
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: ubuntu-PC1
+    node_definition: ubuntu
+    parameters: {}
+    ram: null
+    tags: []
+    x: -560
+    y: 400
+    interfaces:
+      - id: i0
+        label: ens2
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: ubuntu-PC2
+    node_definition: ubuntu
+    parameters: {}
+    ram: null
+    tags: []
+    x: -520
+    y: 240
+    interfaces:
+      - id: i0
+        label: ens2
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: asav-0
+    node_definition: asav
+    parameters: {}
+    ram: null
+    tags: []
+    x: 40
+    y: 320
+    interfaces:
+      - id: i0
+        label: Management0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: GigabitEthernet0/0
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: GigabitEthernet0/1
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: GigabitEthernet0/2
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i4
+        label: GigabitEthernet0/3
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i5
+        label: GigabitEthernet0/4
+        mac_address: null
+        type: physical
+        slot: 5
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: iol-4s-Roteador
+    node_definition: iol-xe-serial-4eth
+    parameters: {}
+    ram: null
+    tags: []
+    x: 280
+    y: 400
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Serial1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Serial1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Serial1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Serial1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: iol-l2-Switch
+    node_definition: ioll2-xe
+    parameters: {}
+    ram: null
+    tags: []
+    x: -160
+    y: 400
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+links:
+  - id: l0
+    n1: n1
+    n2: n4
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: ubuntu-PC2-ens2<->iol-l2-Switch-Ethernet0/1
+  - id: l1
+    n1: n0
+    n2: n4
+    i1: i0
+    i2: i3
+    conditioning: {}
+    label: ubuntu-PC1-ens2<->iol-l2-Switch-Ethernet0/2
+  - id: l2
+    n1: n4
+    n2: n2
+    i1: i1
+    i2: i2
+    conditioning: {}
+    label: iol-l2-Switch-Ethernet0/0<->asav-0-GigabitEthernet0/1
+  - id: l3
+    n1: n4
+    n2: n3
+    i1: i4
+    i2: i1
+    conditioning: {}
+    label: iol-l2-Switch-Ethernet0/3<->iol-4s-Roteador-Ethernet0/0
+lab:
+  description: ''
+  notes: ''
+  title: Lab at Fri 07:53 AM
+  version: 0.3.0

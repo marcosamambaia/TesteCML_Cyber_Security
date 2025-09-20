@@ -73,7 +73,7 @@ annotations:
       !
 
       interface Ethernet0/0
-       no ip address
+       no shutdown
       !
       interface Ethernet0/0.10
        encapsulation dot1Q 10
@@ -306,7 +306,6 @@ annotations:
                 - 1.1.1.1
 
 
-
     text_font: monospace
     text_italic: false
     text_size: 12
@@ -372,6 +371,161 @@ annotations:
     x1: 1040.0
     y1: -40.0
     z_index: 8
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      # =========================================
+      # Tutorial: Como criar conexão externa no CML
+      # =========================================
+
+      ## Objetivo:
+      Permitir que um nó Linux (ex: PC1) acesse a internet para instalar pacotes como nmap, hping3, etc.
+
+      ---
+
+      ## Etapas:
+
+      1. **Adicionar o nó External Connector**
+         - No CML, clique em "Add Node"
+         - Selecione "External Connector" (ícone de nuvem)
+         - Arraste para o seu lab
+
+      2. **Conectar o nó Linux ao External Connector**
+         - Crie um link entre a interface `ens2` do PC1 e a interface `port` do External Connector
+         - Confirme a conexão na tela de "Create Link"
+
+      3. **Iniciar o External Connector**
+         - Selecione o nó `ext-conn-0`
+         - Clique em "START" para ativar
+
+      4. **Configurar o PC1 para usar DHCP**
+         - Editar o arquivo Netplan:
+           sudo nano /etc/netplan/01-netcfg.yaml
+
+         - Conteúdo sugerido:
+           network:
+             version: 2
+             ethernets:
+               ens2:
+                 dhcp4: yes
+
+         - Aplicar configuração:
+           sudo netplan apply
+
+      5. **Testar conectividade**
+         - ping 8.8.8.8           # Testa acesso IP
+         - ping google.com        # Testa DNS
+
+      6. **Instalar ferramentas**
+         - sudo apt update
+         - sudo apt install nmap -y
+         - sudo apt install hping3 -y
+         - sudo apt install arp-scan -y
+
+      ---
+
+      ## Observações:
+      - O External Connector usa a rede da máquina host para fornecer acesso à internet.
+      - O nó Linux precisa estar com DHCP ativado para receber IP, gateway e DNS automaticamente.
+      - Após instalar os pacotes, você pode desconectar o nó da internet e reconectá-lo à topologia original.
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -1480.0
+    y1: 480.0
+    z_index: 9
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      sudo chmod 600 /etc/netplan/01-netcfg.yaml
+      para erro de permissao
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -1560.0
+    y1: -160.0
+    z_index: 10
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      # Relatório de Segurança – Ataque bem-sucedido em rede sem firewall
+
+      ## Cenário
+      Ambiente de rede simulado no Cisco Modeling Labs (CML), composto por duas VLANs:
+      - VLAN 20: Atacante (PC1) – IP 192.168.20.10
+      - VLAN 10: Vítima (PC2) – IP 192.168.10.10
+      - Roteador com subinterfaces para ambas as VLANs, sem firewall ou ACLs aplicadas.
+
+      ## Objetivo
+      Demonstrar como a ausência de um firewall permite que um atacante interno execute varreduras, ataques e acessos diretos à rede da vítima.
+
+      ## Testes Realizados
+
+      1. **Ping (ICMP)**
+         - Comando: ping -c 4 192.168.10.10
+         - Resultado: Sucesso total, 0% perda de pacotes
+         - Impacto: Confirma que há conectividade direta entre atacante e vítima
+
+      2. **Nmap (Varredura TCP)**
+         - Comando: sudo nmap -sS -Pn 192.168.10.10
+         - Resultado: Porta 22 (SSH) aberta e acessível
+         - Impacto: Atacante pode identificar serviços ativos e iniciar exploração
+
+      3. **Hping3 (Simulação de ataque DoS)**
+         - Comando: sudo hping3 -S -p 80 --flood 192.168.10.10
+         - Resultado: Milhões de pacotes transmitidos sem bloqueio
+         - Impacto: Possível degradação de serviço ou negação de acesso à vítima
+
+      4. **Arp-scan (Descoberta de rede)**
+         - Comando: sudo arp-scan --interface=ens2 --localnet
+         - Resultado: Roteador detectado na VLAN 20
+         - Impacto: Atacante pode mapear dispositivos locais e planejar movimentação lateral
+
+      ## Conclusão
+
+      O ataque foi **totalmente bem-sucedido**. A ausência de um firewall ou qualquer mecanismo de filtragem permitiu que o atacante:
+      - Identificasse a vítima
+      - Descobrisse serviços abertos
+      - Enviassse pacotes em massa sem restrição
+
+      Em ambientes reais, esse tipo de vulnerabilidade pode resultar em:
+      - Invasão de sistemas
+      - Roubo de credenciais via SSH
+      - Interrupção de serviços críticos
+      - Propagação de malware lateralmente
+
+      ## Recomendação
+
+      Implementar imediatamente um firewall entre VLANs, como o ASAv testado no Lab anterior, com ACLs restritivas que:
+      - Bloqueiem tráfego IP indesejado
+      - Permitam apenas serviços essenciais
+      - Monitorem tentativas de varredura e ataques
+
+      A segurança de rede não é opcional — é essencial para proteger dados, usuários e reputação institucional.
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -3000.0
+    y1: -360.0
+    z_index: 11
 smart_annotations: []
 nodes:
   - boot_disk_size: null
@@ -516,6 +670,27 @@ nodes:
         mac_address: null
         type: physical
         slot: 7
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: ext-conn-0
+    node_definition: external_connector
+    parameters: {}
+    ram: null
+    tags: []
+    x: -480
+    y: 200
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
 links:
   - id: l0
     n1: n0

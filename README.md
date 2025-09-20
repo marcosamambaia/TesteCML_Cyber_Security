@@ -1,41 +1,36 @@
-# Laboratórios CML – Cenários com e sem ASAv
+# TesteCML_Cyber_Security
 
-Este repositório contém dois laboratórios desenvolvidos no Cisco Modeling Labs (CML), com foco em testes de invasão e análise de tráfego entre VLANs. Os cenários foram criados para fins **educacionais e éticos**, com objetivo de demonstrar a importância da segmentação e inspeção de pacotes em ambientes corporativos.
+Este repositório contém dois laboratórios desenvolvidos no Cisco Modeling Labs (CML) para demonstrar cenários de segurança em redes com e sem firewall.
 
-## 🎯 Objetivos Didáticos
+## 🔐 Lab 1 – Rede com ASAv (Firewall ativo)
 
-- Simular ataques entre VLANs em ambiente controlado
-- Demonstrar a diferença entre redes **com** e **sem** firewall ASAv
-- Validar conectividade, exposição de serviços e captura de tráfego
-- Produzir material técnico para ensino, portfólio e vídeos didáticos
+- Simula uma rede segmentada com proteção de firewall.
+- Utiliza o Cisco ASAv para aplicar regras de filtragem entre VLANs.
+- Testes realizados com ferramentas como `ping`, `nmap`, `hping3` e `arp-scan`.
+- Resultados mostram bloqueio eficaz de tráfego malicioso.
 
-## 🧪 Cenários
+## ⚠️ Lab 2 – Rede sem ASAv (Vulnerável)
 
-### 🔹 Laboratório Sem ASAv (`LabInvasaoSemASAv.yaml`)
-- PC1 (Atacante): `192.168.20.10` – VLAN 20
-- PC2 (Alvo): `192.168.10.10` – VLAN 10
-- Comunicação entre VLANs permitida
-- SSH acessível ao atacante
-- Sem inspeção ou bloqueio de pacotes
+- Simula uma rede sem proteção entre VLANs.
+- O roteador permite roteamento direto entre o atacante (PC1) e a vítima (PC2).
+- Testes mostram acesso irrestrito, varredura de portas e simulação de ataque DoS.
 
-### 🔹 Laboratório Com ASAv (`LabInvasaoComASAv.yaml`)
-- ASAv configurado entre VLANs
-- Políticas de inspeção e bloqueio aplicadas
-- Testes demonstram mitigação de ataques
+## 📂 Estrutura do repositório
+TesteCML_Cyber_Security/ ├── LabInvasaoComASAv.yaml ├── LabInvasaoSemASAv.yaml ├── relatorios/ │   ├── relatorio_lab1.txt │   ├── relatorio_lab2.txt ├── resultados/ │   ├── nmap_lab1.txt │   ├── nmap_lab2.txt │   ├── hping3_lab2.txt │   └── ping_lab2.txt
 
-## 📁 Estrutura dos Arquivos
-CML-Laboratorios-ASAv/ ├── LabInvasaoSemASAv.yaml ├── LabInvasaoComASAv.yaml ├── netplan/ │   └── PC1.yaml ├── testes/ │   ├── varredura.txt │   └── ssh-tentativa.txt ├── captura/ │   └── ataque.pcap ├── roteiro/ │   └── invasao-intervlan.txt
+## 🧪 Ferramentas utilizadas
 
-## 🛠️ Instruções para Importar no CML
+- Cisco Modeling Labs (CML)
+- Ubuntu 22.04 (PCs simulados)
+- Wireshark
+- Nmap
+- Hping3
+- Arp-scan
 
-1. Abra o Cisco Modeling Labs
-2. Vá em **Import Lab**
-3. Selecione o arquivo `.yaml` desejado
-4. Aguarde a importação e inicie o laboratório
-5. Execute os testes conforme descrito nos arquivos de roteiro
+## 📌 Objetivo
 
-## ⚠️ Aviso Ético
+Demonstrar, de forma prática, a importância de firewalls na proteção de redes internas contra ataques de origem local.
 
-Este projeto é exclusivamente para fins educacionais. Nenhuma técnica aqui descrita deve ser utilizada fora de ambientes controlados e autorizados. O autor reforça o compromisso com a ética digital e a cibersegurança responsável.
+## 📄 Licença
 
----
+Este projeto é de uso acadêmico e livre para fins educacionais.

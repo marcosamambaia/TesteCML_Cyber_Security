@@ -437,8 +437,8 @@ annotations:
     text_unit: pt
     thickness: 1
     type: text
-    x1: -1480.0
-    y1: 480.0
+    x1: -1840.0
+    y1: 560.0
     z_index: 9
   - border_color: '#00000000'
     border_style: ''
@@ -526,6 +526,179 @@ annotations:
     x1: -3000.0
     y1: -360.0
     z_index: 11
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      # Projeto Cyber Segurança – Captura
+      de Pacotes com Wireshark/Tshark no PC1 (Atacante)
+
+      ## Objetivo:
+      Monitorar os testes de ataque
+       realizados nos dois ambientes
+      (com ASAv e sem ASAv) usando
+      captura de pacotes para análise
+      comparativa.
+
+      ---
+
+      ## Instalação do Wireshark no Ubuntu (PC1)
+
+      1. Atualizar os pacotes:
+         sudo apt update
+
+      2. Instalar o Wireshark:
+         sudo apt install wireshark -y
+
+      3. Durante a instalação, selecionar:
+         <Yes> para permitir que usuários não-root capturem pacotes
+
+      4. Adicionar o usuário ao grupo wireshark:
+         sudo usermod -aG wireshark $USER
+
+      5. Reiniciar a sessão ou o sistema para aplicar permissões
+
+      6. Verificar se o grupo foi aplicado:
+         groups
+         → Deve conter: wireshark
+
+      ---
+
+      ## Alternativa sem interface gráfica: tshark (modo terminal)
+
+      1. Instalar o tshark:
+         sudo apt install tshark -y
+
+      2. Verificar interfaces disponíveis:
+         tshark -D
+         → Interface usada: ens2
+
+      ---
+
+      ## Captura com tshark em segundo plano (usando /tmp)
+
+      1. Iniciar a captura:
+         sudo tshark -i ens2 -w /tmp/lab1-asav.pcapng &
+
+      2. Executar os testes de ataque no mesmo terminal:
+         ping 192.168.10.10
+         sudo nmap -sS -Pn 192.168.10.10
+         sudo hping3 -S -p 80 --flood 192.168.10.10
+         sudo arp-scan --interface=ens2 --localnet
+
+      3. Encerrar a captura:
+         sudo killall tshark
+
+      4. Corrigir permissões do arquivo:
+         sudo chown cisco:cisco /tmp/lab1-asav.pcapng
+
+      5. Mover o arquivo para a pasta do projeto:
+         sudo mv /tmp/lab1-asav.pcapng ~/lab1-asav.pcapng
+
+      ---
+
+      ## Envio do arquivo para o PC real via web
+
+      1. Verificar se o Ubuntu está com acesso à internet via NAT:
+         ping -c 4 8.8.8.8
+         curl https://example.com
+
+      2. Enviar o arquivo usando curl:
+         curl -F "file=@/home/cisco/lab1-asav.pcapng" https://0x0.st
+
+      → O terminal retornará uma URL como:
+         https://0x0.st/abc123.pcapng
+
+      3. No Windows, abrir o link no navegador para baixar o arquivo
+
+      ---
+
+      ## Resultado
+
+      Arquivo gerado: lab1-asav.pcapng
+      → Pode ser transferido para o Windows e aberto no Wireshark gráfico para análise detalhada.
+
+      ---
+
+      ## Observação
+
+      Para o Lab 2 (sem ASAv), repetir os mesmos passos e salvar como:
+         lab2-vulneravel.pcapng
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -920.0
+    y1: 1000.0
+    z_index: 12
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      TUTORIAL: Enviar arquivo do Ubuntu (CML via NAT) para o PC real usando a web
+
+      📌 Cenário:
+      - Ubuntu rodando dentro do Cisco Modeling Labs (CML)
+      - Conectado à internet via NAT (sem IP acessível diretamente)
+      - Objetivo: transferir o arquivo lab1-asav.pcapng para o PC físico
+
+      🧭 Etapas:
+
+      1. [Criar pasta Downloads no Ubuntu]
+      -------------------------------------
+      Abra o terminal do Ubuntu e execute:
+      mkdir ~/Downloads
+
+      2. [Mover o arquivo para a pasta Downloads]
+      -------------------------------------------
+      mv lab1-asav.pcapng ~/Downloads/
+
+      3. [Usar o serviço 0x0.st para upload via terminal]
+      ---------------------------------------------------
+      curl -F "file=@/home/cisco/Downloads/lab1-asav.pcapng" https://0x0.st
+
+      → O terminal retornará um link como:
+      https://0x0.st/abc123.pcapng
+
+      4. [Baixar o arquivo no PC real]
+      --------------------------------
+      Abra o navegador do Windows e acesse o link gerado.
+      O download do arquivo começará automaticamente.
+
+      ✅ Resultado:
+      - Arquivo transferido com sucesso do Ubuntu (via NAT) para o PC físico
+      - Sem necessidade de IP fixo, servidor HTTP ou configuração de Bridge
+
+      🔒 Observações:
+      - O link gerado pelo 0x0.st é temporário (expira em ~30 dias)
+      - Ideal para arquivos não confidenciais e testes rápidos
+      - Não requer login, e-mail ou autenticação
+
+      🧠 Dica extra:
+      Se o upload falhar, teste conectividade com:
+      curl https://example.com
+
+      Se funcionar, o Ubuntu tem acesso HTTPS e pode usar outros serviços como:
+      - https://transfer.sh
+      - https://file.io
+      - https://paste.rs (para arquivos codificados em base64)
+
+      Fim do tutorial.
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: 1080.0
+    y1: 1000.0
+    z_index: 13
 smart_annotations: []
 nodes:
   - boot_disk_size: null
@@ -678,7 +851,7 @@ nodes:
     hide_links: false
     id: n4
     image_definition: null
-    label: ext-conn-0
+    label: ext-conn-NAT
     node_definition: external_connector
     parameters: {}
     ram: null
@@ -708,11 +881,11 @@ links:
     label: iol-l2-Switch-Ethernet0/2<->iol-4s-Roteador-Ethernet0/0
   - id: l2
     n1: n1
-    n2: n2
+    n2: n4
     i1: i0
-    i2: i1
+    i2: i0
     conditioning: {}
-    label: ubuntu-PC1-ens2<->iol-l2-Switch-Ethernet0/0
+    label: ubuntu-PC1-ens2<->ext-conn-NAT-port
 lab:
   description: ''
   notes: ''

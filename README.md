@@ -1,36 +1,63 @@
-# TesteCML_Cyber_Security
+# 🛡️ TesteCML_Cyber_Security
 
-Este repositório contém dois laboratórios desenvolvidos no Cisco Modeling Labs (CML) para demonstrar cenários de segurança em redes com e sem firewall.
+## 📌 Objetivo do Projeto
 
-## 🔐 Lab 1 – Rede com ASAv (Firewall ativo)
+Este projeto tem como foco a simulação de ataques em ambientes virtualizados usando o Cisco Modeling Labs (CML), com o objetivo de demonstrar a importância de segmentação de rede e uso de firewalls como o ASAv. Através da captura e análise de pacotes, é possível comparar cenários com e sem proteção.
 
-- Simula uma rede segmentada com proteção de firewall.
-- Utiliza o Cisco ASAv para aplicar regras de filtragem entre VLANs.
-- Testes realizados com ferramentas como `ping`, `nmap`, `hping3` e `arp-scan`.
-- Resultados mostram bloqueio eficaz de tráfego malicioso.
+---
 
-## ⚠️ Lab 2 – Rede sem ASAv (Vulnerável)
+## 🧪 Estrutura dos Testes
 
-- Simula uma rede sem proteção entre VLANs.
-- O roteador permite roteamento direto entre o atacante (PC1) e a vítima (PC2).
-- Testes mostram acesso irrestrito, varredura de portas e simulação de ataque DoS.
+- **Lab 1 – Sem ASAv (Ambiente vulnerável):**
+  - PC1 (atacante) realiza testes contra PC2 (vítima)
+  - Ferramentas utilizadas: `ping`, `nmap`, `hping3`, `arp-scan`
+  - Captura de pacotes com `tshark`
+  - Resultado: ataque bem-sucedido
 
-## 📂 Estrutura do repositório
-TesteCML_Cyber_Security/ ├── LabInvasaoComASAv.yaml ├── LabInvasaoSemASAv.yaml ├── relatorios/ │   ├── relatorio_lab1.txt │   ├── relatorio_lab2.txt ├── resultados/ │   ├── nmap_lab1.txt │   ├── nmap_lab2.txt │   ├── hping3_lab2.txt │   └── ping_lab2.txt
+- **Lab 2 – Com ASAv (Ambiente protegido):**
+  - Firewall ASAv entre VLANs
+  - Expectativa: bloqueio de tráfego malicioso
+  - Captura e comparação dos pacotes
 
-## 🧪 Ferramentas utilizadas
+---
+
+## 📂 Organização das Pastas
+
+- `ArquivosWireShark/`: capturas de tráfego (.pcapng)
+- `Relatorios/`: documentação técnica dos testes
+- `TopologiasCML/`: arquivos `.yaml` das topologias usadas
+- `Scripts/`: comandos utilizados nos testes
+
+---
+
+## 📈 Resultados
+
+- Ataques realizados no ambiente sem ASAv foram bem-sucedidos:
+  - Comunicação direta entre VLANs
+  - Varredura de portas e flood SYN sem bloqueio
+  - Captura confirmada via Wireshark
+
+- Relatório técnico disponível em:
+  - `Relatorios/AtaqueBemSucedido.txt`
+
+---
+
+## 🔐 Recomendação
+
+Implementar firewalls como ASAv e políticas de segmentação entre VLANs para mitigar riscos e proteger ativos da rede.
+
+---
+
+## 🛠️ Requisitos
 
 - Cisco Modeling Labs (CML)
-- Ubuntu 22.04 (PCs simulados)
-- Wireshark
-- Nmap
-- Hping3
-- Arp-scan
+- Ubuntu (PC1 atacante)
+- Wireshark / Tshark
+- Git + GitHub
 
-## 📌 Objetivo
+---
 
-Demonstrar, de forma prática, a importância de firewalls na proteção de redes internas contra ataques de origem local.
+## 👨‍💻 Autor
 
-## 📄 Licença
-
-Este projeto é de uso acadêmico e livre para fins educacionais.
+**Marco Samambaia**  
+Projeto desenvolvido como parte de estudos em segurança ofensiva e redes simuladas.

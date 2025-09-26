@@ -1,0 +1,129 @@
+10 rk -i ens2 -w /tmp/lab1-asping -c 4 192.168.10.10
+PING 192.168.10.10 (192.168.10.10) 56(84) bytes of data.
+64 bytes from 192.168.10.10: icmp_seq=1 ttl=63 time=3.31 ms
+12 64 bytes from 192.168.10.10: icmp_seq=2 ttl=63 time=3.03 ms
+15 64 bytes from 192.168.10.10: icmp_seq=3 ttl=63 time=2.82 ms
+17 64 bytes from 192.168.10.10: icmp_seq=4 ttl=63 time=2.52 ms
+
+--- 192.168.10.10 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3005ms
+rtt min/avg/max/mdev = 2.520/2.919/3.312/0.289 ms
+27 sudo nmap -sS -Pn 192.168.10.sudo nmap -sS -Pn 192.168.10.10
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2025-09-21 19:04 UTC
+1552 Nmap scan report for 192.168.10.10
+Host is up (0.0023s latency).
+Not shown: 999 closed tcp ports (reset)
+PORT   STATE SERVICE
+22/tcp open  ssh
+
+Nmap done: 1 IP address (1 host up) scanned in 13.73 seconds
+2168 @inserthostname-here:~$ 
+2171 @inserthostname-here:~$ 
+cisco@inserthostname-here:~$ 
+2172 sudo hping3 -S -p 80 --fsudo hping3 -S -p 80 --flood 192.168.10.10
+HPING 192.168.10.10 (ens2 192.168.10.10): S set, 40 headers + 0 data bytes
+hping in flood mode, no replies will be shown
+1001353 ^C
+--- 192.168.10.10 hping statistic ---
+                                                          
+# RELATÓRIO DE TESTES DE SEGURANÇA – AMBIENTE SEM ASAv
+
+## Objetivo:
+Demonstrar a ausência de proteção entre VLANs em um ambiente vulnerável, simulando ataques a partir do PC1 (atacante) contra o PC2 (vítima), e validando os resultados por meio de captura de pacotes.
+
+---
+
+## Ambiente:
+
+- PC1 (Atacante): Ubuntu via CML, conectado à VLAN 20
+- PC2 (Vítima): Dispositivo na VLAN 10
+- Topologia: Sem firewall ASAv, sem ACLs ou segmentação
+- Interface de captura: ens2
+- Ferramenta de captura: tshark (modo terminal)
+- Arquivo gerado: lab1-asav.pcapng
+
+---
+
+## Testes Realizados:
+
+1. Teste de conectividade (ICMP)
+   Comando:
+     ping -c 4 192.168.10.10
+   Resultado:
+     - 4 pacotes transmitidos e recebidos
+     - RTT médio: 2.9 ms
+   Conclusão:
+     Conectividade plena entre VLANs
+
+2. Varredura de portas TCP (Nmap)
+   Comando:
+     sudo nmap -sS -Pn 192.168.10.10
+   Resultado:
+     - Host ativo com latência de 2 ms
+     - Porta 22/tcp (SSH) identificada como aberta
+   Conclusão:
+     Serviços expostos e acessíveis ao atacante
+
+3. Simulação de ataque DoS (Hping3)
+   Comando:
+     sudo hping3 -S -p 80 --flood 192.168.10.10
+   Resultado:
+     - Flood SYN iniciado com sucesso
+     - Nenhum bloqueio ou resposta ICMP negativa
+   Conclusão:
+     Tráfego malicioso chega à vítima sem restrições
+
+4. Descoberta de dispositivos (ARP-Scan)
+   Comando:
+     sudo arp-scan --interface=ens2 --localnet
+   Resultado:
+     - Dispositivos da VLAN 20 visíveis
+   Conclusão:
+     Rede interna exposta a reconhecimento
+
+---
+
+## Captura de Pacotes:
+
+- Arquivo gerado: lab1-asav.pcapng
+- Tamanho: 85 MB
+- Conteúdo:
+  - Pacotes ICMP (ping)
+  - TCP SYN (nmap e hping3)
+  - ARP requests e replies
+- Validação:
+  Arquivo analisado no Wireshark no Windows, confirmando a chegada dos pacotes à vítima
+
+---
+
+## Envio do Arquivo para o PC Real:
+
+1. Corrigir permissões:
+   sudo chown cisco:cisco ~/lab1-asav.pcapng
+
+2. Verificar conectividade com a internet via NAT:
+   ping -c 4 8.8.8.8
+
+3. Enviar o arquivo via curl:
+   curl -F "file=@/home/cisco/lab1-asav.pcapng" https://0x0.st
+
+4. Copiar o link gerado e abrir no navegador do Windows para baixar o arquivo
+
+---
+
+## Conclusão:
+
+Os testes realizados demonstram que o ambiente sem ASAv permite:
+
+- Comunicação direta entre VLANs
+- Reconhecimento de dispositivos e serviços
+- Execução de ataques DoS sem bloqueio
+- Exposição total da rede interna
+
+Status do ataque: ✅ Bem-sucedido
+
+---
+
+## Recomendação:
+
+Implementar firewall ASAv ou políticas de segmentação entre VLANs para mitigar riscos e proteger os ativos da rede.

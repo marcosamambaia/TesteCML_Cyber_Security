@@ -1,0 +1,893 @@
+annotations:
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      hostname Switch-L2
+      spanning-tree mode rapid-pvst
+
+      interface Ethernet0/0
+       switchport mode access
+       switchport access vlan 20  ! Conectado ao PC1 (atacante)
+
+      interface Ethernet0/1
+       switchport mode access
+       switchport access vlan 10  ! Conectado ao PC2 (vítima)
+
+      interface Ethernet0/2
+       switchport trunk encapsulation dot1q
+       switchport trunk allowed vlan 10,20
+       switchport mode trunk       ! Conectado ao Roteador Eth0/0
+
+      vlan 10
+       name VLAN10-PC2
+
+      vlan 20
+       name VLAN20-PC1
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -280.0
+    y1: 240.0
+    z_index: 0
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      Roteador#show running-config
+      Building configuration...
+
+      Current configuration : 1349 bytes
+      !
+      ! Last configuration change at 04:46:34 UTC Sat Sep 20 2025
+      !
+      version 17.16
+      service timestamps debug datetime msec
+      service timestamps log datetime msec
+      !
+      hostname Roteador
+      !
+      boot-start-marker
+      boot-end-marker
+      !
+      !
+      no aaa new-model
+      !
+      !
+      ip cef
+      login on-success log
+      no ipv6 cef
+      !
+      !
+      memory free low-watermark processor 79983
+      !
+      !
+      spanning-tree mode rapid-pvst
+      !
+
+      interface Ethernet0/0
+       no shutdown
+      !
+      interface Ethernet0/0.10
+       encapsulation dot1Q 10
+       ip address 192.168.10.1 255.255.255.0
+      !
+      interface Ethernet0/0.20
+       encapsulation dot1Q 20
+       ip address 192.168.20.1 255.255.255.0
+      !
+      interface Ethernet0/1
+       no ip address
+       shutdown
+      !
+      interface Ethernet0/2
+       no ip address
+       shutdown
+      !
+      interface Ethernet0/3
+       no ip address
+       shutdown
+      !
+      interface Serial1/0
+       no ip address
+       shutdown
+       serial restart-delay 0
+      !
+      interface Serial1/1
+       no ip address
+       shutdown
+       serial restart-delay 0
+      !
+      interface Serial1/2
+       no ip address
+       shutdown
+       serial restart-delay 0
+      !
+      interface Serial1/3
+       no ip address
+       shutdown
+       serial restart-delay 0
+      !
+      ip forward-protocol nd
+      ip forward-protocol udp
+      !
+      !
+      ip http server
+      ip http secure-server
+      ip ssh bulk-mode 131072
+      no logging btrace
+      !
+      !
+      !
+      control-plane
+      !
+      !
+      !
+      line con 0
+       logging synchronous
+      line aux 0
+      line vty 0 4
+       login
+       transport input ssh
+      !
+      !
+      !
+      !
+      end
+
+      Roteador#show ip interface brief
+      Interface              IP-Address      OK? Method Status                Protocol
+      Ethernet0/0            unassigned      YES TFTP   up                    up
+      Ethernet0/0.10         192.168.10.1    YES manual up                    up
+      Ethernet0/0.20         192.168.20.1    YES manual up                    up
+      Ethernet0/1            unassigned      YES TFTP   administratively down down
+      Ethernet0/2            unassigned      YES TFTP   administratively down down
+      Ethernet0/3            unassigned      YES TFTP   administratively down down
+      Serial1/0              unassigned      YES TFTP   administratively down down
+      Serial1/1              unassigned      YES TFTP   administratively down down
+      Serial1/2              unassigned      YES TFTP   administratively down down
+      Serial1/3              unassigned      YES TFTP   administratively down down
+      Roteador#
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: 360.0
+    y1: 0.0
+    z_index: 1
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: Atacante VLAN 20
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -600.0
+    y1: 40.0
+    z_index: 2
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: Vítima VLAN 10
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -600.0
+    y1: -80.0
+    z_index: 3
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      # ================================
+      # Testes esperados a partir do PC1 (atacante)
+      # Topologia sem ASAv – rede vulnerável
+      # ================================
+
+      # Objetivo: demonstrar ausência de proteção entre VLANs
+
+      # ------------------------------------------------------------
+      # Ferramenta     | Comando sugerido                          | Objetivo do teste                      | Resultado esperado
+      # ------------------------------------------------------------
+      # Ping           | ping -c 4 192.168.10.10                    | Testar conectividade básica (ICMP)     | ✅ Sucesso
+      # Nmap           | nmap -sS -Pn 192.168.10.10                 | Varredura de portas TCP                | ✅ Portas detectadas
+      # Hping3         | sudo hping3 -S -p 80 --flood 192.168.10.10 | Simular ataque DoS na porta 80         | ✅ Tráfego chega à vítima
+      # Arp-scan       | sudo arp-scan --interface=ens2 --localnet | Descoberta de dispositivos na VLAN 20  | ✅ Funciona normalmente
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -600.0
+    y1: -480.0
+    z_index: 4
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      Este cenário representa uma rede
+       sem firewall, onde o roteador realiza
+       o roteamento inter-VLAN diretamente.
+       O atacante (PC1) consegue alcançar a
+      vítima (PC2) sem inspeção ou bloqueio,
+       evidenciando a vulnerabilidade da
+      arquitetura. Os testes de ping, nmap e
+       hping3 demonstram ataques bem-sucedidos,
+       servindo como base comparativa para o
+      cenário com ASAv.
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -1120.0
+    y1: -360.0
+    z_index: 5
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |2-
+       PC1 – Atacante (VLAN 20
+      Cenário sem ASAv
+
+      # /etc/netplan/01-netcfg.yaml
+      network:
+        version: 2
+        renderer: networkd
+        ethernets:
+          ens2:
+            dhcp4: false
+            addresses:
+              - 192.168.20.10/24
+            nameservers:
+              addresses:
+                - 8.8.8.8
+                - 1.1.1.1
+            routes:
+              - to: 0.0.0.0/0
+                via: 192.168.20.1
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -1360.0
+    y1: -40.0
+    z_index: 6
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |+
+      Netplan para PC2 – VLAN 10 (Vítima)
+
+      # /etc/netplan/01-netcfg.yaml
+      network:
+        version: 2
+        renderer: networkd
+        ethernets:
+          ens2:
+            dhcp4: false
+            addresses:
+              - 192.168.10.10/24
+            gateway4: 192.168.10.1
+            nameservers:
+              addresses:
+                - 8.8.8.8
+                - 1.1.1.1
+
+
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -1040.0
+    y1: -40.0
+    z_index: 7
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      # Teste de Invasão – PC1 (Atacante) para PC2 (Alvo)
+      # Cenário: Sem ASAv – Comunicação entre VLAN 20 e VLAN 10 permitida
+      # Data: 20/09/2025
+      # Autor: Marco
+
+      [Topologia]
+      - PC1 (Atacante): 192.168.20.10 – VLAN 20
+      - PC2 (Alvo):     192.168.10.10 – VLAN 10
+
+      [Objetivo]
+      Simular ataque lateral entre VLANs sem inspeção de pacotes ou firewall.
+
+      [Passo 1 – Teste de conectividade]
+      ping -c 4 192.168.10.10
+      → Resultado: Sucesso. Comunicação entre VLANs está ativa.
+
+      [Passo 2 – Varredura de portas com netcat]
+      nc -zv 192.168.10.10 22
+      → Resultado: Porta 22 (SSH) aberta
+
+      nc -zv 192.168.10.10 80
+      → Resultado: Porta 80 recusada (sem serviço HTTP ativo)
+
+      [Passo 3 – Tentativa de conexão SSH]
+      ssh usuario@192.168.10.10
+      → Resultado: Chave ED25519 exibida. Conexão iniciada com sucesso.
+      → Conexão interrompida manualmente para evitar login real.
+
+      [Conclusão]
+      O atacante na VLAN 20 consegue alcançar e
+      interagir com o PC2 na VLAN 10 sem qualquer
+       bloqueio. O SSH está exposto e acessível,
+       evidenciando a ausência de inspeção entre
+       segmentos. Este cenário reforça a importância
+       de firewalls como o ASAv para proteger serviços
+       críticos.
+
+      [Recomendação]
+      Registrar captura de tráfego no PC2 com tcpdump
+       ou Wireshark para validar chegada dos pacotes
+      e preparar trecho narrado para vídeo didático.
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: 1040.0
+    y1: -40.0
+    z_index: 8
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      # =========================================
+      # Tutorial: Como criar conexão externa no CML
+      # =========================================
+
+      ## Objetivo:
+      Permitir que um nó Linux (ex: PC1) acesse a internet para instalar pacotes como nmap, hping3, etc.
+
+      ---
+
+      ## Etapas:
+
+      1. **Adicionar o nó External Connector**
+         - No CML, clique em "Add Node"
+         - Selecione "External Connector" (ícone de nuvem)
+         - Arraste para o seu lab
+
+      2. **Conectar o nó Linux ao External Connector**
+         - Crie um link entre a interface `ens2` do PC1 e a interface `port` do External Connector
+         - Confirme a conexão na tela de "Create Link"
+
+      3. **Iniciar o External Connector**
+         - Selecione o nó `ext-conn-0`
+         - Clique em "START" para ativar
+
+      4. **Configurar o PC1 para usar DHCP**
+         - Editar o arquivo Netplan:
+           sudo nano /etc/netplan/01-netcfg.yaml
+
+         - Conteúdo sugerido:
+           network:
+             version: 2
+             ethernets:
+               ens2:
+                 dhcp4: yes
+
+         - Aplicar configuração:
+           sudo netplan apply
+
+      5. **Testar conectividade**
+         - ping 8.8.8.8           # Testa acesso IP
+         - ping google.com        # Testa DNS
+
+      6. **Instalar ferramentas**
+         - sudo apt update
+         - sudo apt install nmap -y
+         - sudo apt install hping3 -y
+         - sudo apt install arp-scan -y
+
+      ---
+
+      ## Observações:
+      - O External Connector usa a rede da máquina host para fornecer acesso à internet.
+      - O nó Linux precisa estar com DHCP ativado para receber IP, gateway e DNS automaticamente.
+      - Após instalar os pacotes, você pode desconectar o nó da internet e reconectá-lo à topologia original.
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -1840.0
+    y1: 560.0
+    z_index: 9
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      sudo chmod 600 /etc/netplan/01-netcfg.yaml
+      para erro de permissao
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -1560.0
+    y1: -160.0
+    z_index: 10
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      # Relatório de Segurança – Ataque bem-sucedido em rede sem firewall
+
+      ## Cenário
+      Ambiente de rede simulado no Cisco Modeling Labs (CML), composto por duas VLANs:
+      - VLAN 20: Atacante (PC1) – IP 192.168.20.10
+      - VLAN 10: Vítima (PC2) – IP 192.168.10.10
+      - Roteador com subinterfaces para ambas as VLANs, sem firewall ou ACLs aplicadas.
+
+      ## Objetivo
+      Demonstrar como a ausência de um firewall permite que um atacante interno execute varreduras, ataques e acessos diretos à rede da vítima.
+
+      ## Testes Realizados
+
+      1. **Ping (ICMP)**
+         - Comando: ping -c 4 192.168.10.10
+         - Resultado: Sucesso total, 0% perda de pacotes
+         - Impacto: Confirma que há conectividade direta entre atacante e vítima
+
+      2. **Nmap (Varredura TCP)**
+         - Comando: sudo nmap -sS -Pn 192.168.10.10
+         - Resultado: Porta 22 (SSH) aberta e acessível
+         - Impacto: Atacante pode identificar serviços ativos e iniciar exploração
+
+      3. **Hping3 (Simulação de ataque DoS)**
+         - Comando: sudo hping3 -S -p 80 --flood 192.168.10.10
+         - Resultado: Milhões de pacotes transmitidos sem bloqueio
+         - Impacto: Possível degradação de serviço ou negação de acesso à vítima
+
+      4. **Arp-scan (Descoberta de rede)**
+         - Comando: sudo arp-scan --interface=ens2 --localnet
+         - Resultado: Roteador detectado na VLAN 20
+         - Impacto: Atacante pode mapear dispositivos locais e planejar movimentação lateral
+
+      ## Conclusão
+
+      O ataque foi **totalmente bem-sucedido**. A ausência de um firewall ou qualquer mecanismo de filtragem permitiu que o atacante:
+      - Identificasse a vítima
+      - Descobrisse serviços abertos
+      - Enviassse pacotes em massa sem restrição
+
+      Em ambientes reais, esse tipo de vulnerabilidade pode resultar em:
+      - Invasão de sistemas
+      - Roubo de credenciais via SSH
+      - Interrupção de serviços críticos
+      - Propagação de malware lateralmente
+
+      ## Recomendação
+
+      Implementar imediatamente um firewall entre VLANs, como o ASAv testado no Lab anterior, com ACLs restritivas que:
+      - Bloqueiem tráfego IP indesejado
+      - Permitam apenas serviços essenciais
+      - Monitorem tentativas de varredura e ataques
+
+      A segurança de rede não é opcional — é essencial para proteger dados, usuários e reputação institucional.
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -3000.0
+    y1: -360.0
+    z_index: 11
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      # Projeto Cyber Segurança – Captura
+      de Pacotes com Wireshark/Tshark no PC1 (Atacante)
+
+      ## Objetivo:
+      Monitorar os testes de ataque
+       realizados nos dois ambientes
+      (com ASAv e sem ASAv) usando
+      captura de pacotes para análise
+      comparativa.
+
+      ---
+
+      ## Instalação do Wireshark no Ubuntu (PC1)
+
+      1. Atualizar os pacotes:
+         sudo apt update
+
+      2. Instalar o Wireshark:
+         sudo apt install wireshark -y
+
+      3. Durante a instalação, selecionar:
+         <Yes> para permitir que usuários não-root capturem pacotes
+
+      4. Adicionar o usuário ao grupo wireshark:
+         sudo usermod -aG wireshark $USER
+
+      5. Reiniciar a sessão ou o sistema para aplicar permissões
+
+      6. Verificar se o grupo foi aplicado:
+         groups
+         → Deve conter: wireshark
+
+      ---
+
+      ## Alternativa sem interface gráfica: tshark (modo terminal)
+
+      1. Instalar o tshark:
+         sudo apt install tshark -y
+
+      2. Verificar interfaces disponíveis:
+         tshark -D
+         → Interface usada: ens2
+
+      ---
+
+      ## Captura com tshark em segundo plano (usando /tmp)
+
+      1. Iniciar a captura:
+         sudo tshark -i ens2 -w /tmp/lab1-asav.pcapng &
+
+      2. Executar os testes de ataque no mesmo terminal:
+         ping 192.168.10.10
+         sudo nmap -sS -Pn 192.168.10.10
+         sudo hping3 -S -p 80 --flood 192.168.10.10
+         sudo arp-scan --interface=ens2 --localnet
+
+      3. Encerrar a captura:
+         sudo killall tshark
+
+      4. Corrigir permissões do arquivo:
+         sudo chown cisco:cisco /tmp/lab1-asav.pcapng
+
+      5. Mover o arquivo para a pasta do projeto:
+         sudo mv /tmp/lab1-asav.pcapng ~/lab1-asav.pcapng
+
+      ---
+
+      ## Envio do arquivo para o PC real via web
+
+      1. Verificar se o Ubuntu está com acesso à internet via NAT:
+         ping -c 4 8.8.8.8
+         curl https://example.com
+
+      2. Enviar o arquivo usando curl:
+         curl -F "file=@/home/cisco/lab1-asav.pcapng" https://0x0.st
+
+      → O terminal retornará uma URL como:
+         https://0x0.st/abc123.pcapng
+
+      3. No Windows, abrir o link no navegador para baixar o arquivo
+
+      ---
+
+      ## Resultado
+
+      Arquivo gerado: lab1-asav.pcapng
+      → Pode ser transferido para o Windows e aberto no Wireshark gráfico para análise detalhada.
+
+      ---
+
+      ## Observação
+
+      Para o Lab 2 (sem ASAv), repetir os mesmos passos e salvar como:
+         lab2-vulneravel.pcapng
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: -920.0
+    y1: 1000.0
+    z_index: 12
+  - border_color: '#00000000'
+    border_style: ''
+    color: '#808080FF'
+    rotation: 0
+    text_bold: false
+    text_content: |-
+      TUTORIAL: Enviar arquivo do Ubuntu (CML via NAT) para o PC real usando a web
+
+      📌 Cenário:
+      - Ubuntu rodando dentro do Cisco Modeling Labs (CML)
+      - Conectado à internet via NAT (sem IP acessível diretamente)
+      - Objetivo: transferir o arquivo lab1-asav.pcapng para o PC físico
+
+      🧭 Etapas:
+
+      1. [Criar pasta Downloads no Ubuntu]
+      -------------------------------------
+      Abra o terminal do Ubuntu e execute:
+      mkdir ~/Downloads
+
+      2. [Mover o arquivo para a pasta Downloads]
+      -------------------------------------------
+      mv lab1-asav.pcapng ~/Downloads/
+
+      3. [Usar o serviço 0x0.st para upload via terminal]
+      ---------------------------------------------------
+      curl -F "file=@/home/cisco/Downloads/lab1-asav.pcapng" https://0x0.st
+
+      → O terminal retornará um link como:
+      https://0x0.st/abc123.pcapng
+
+      4. [Baixar o arquivo no PC real]
+      --------------------------------
+      Abra o navegador do Windows e acesse o link gerado.
+      O download do arquivo começará automaticamente.
+
+      ✅ Resultado:
+      - Arquivo transferido com sucesso do Ubuntu (via NAT) para o PC físico
+      - Sem necessidade de IP fixo, servidor HTTP ou configuração de Bridge
+
+      🔒 Observações:
+      - O link gerado pelo 0x0.st é temporário (expira em ~30 dias)
+      - Ideal para arquivos não confidenciais e testes rápidos
+      - Não requer login, e-mail ou autenticação
+
+      🧠 Dica extra:
+      Se o upload falhar, teste conectividade com:
+      curl https://example.com
+
+      Se funcionar, o Ubuntu tem acesso HTTPS e pode usar outros serviços como:
+      - https://transfer.sh
+      - https://file.io
+      - https://paste.rs (para arquivos codificados em base64)
+
+      Fim do tutorial.
+    text_font: monospace
+    text_italic: false
+    text_size: 12
+    text_unit: pt
+    thickness: 1
+    type: text
+    x1: 1080.0
+    y1: 1000.0
+    z_index: 13
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: null
+    label: ubuntu-PC2
+    node_definition: ubuntu
+    parameters: {}
+    ram: null
+    tags: []
+    x: -480
+    y: -40
+    interfaces:
+      - id: i0
+        label: ens2
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: null
+    label: ubuntu-PC1
+    node_definition: ubuntu
+    parameters: {}
+    ram: null
+    tags: []
+    x: -480
+    y: 80
+    interfaces:
+      - id: i0
+        label: ens2
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: null
+    label: iol-l2-Switch
+    node_definition: ioll2-xe
+    parameters: {}
+    ram: null
+    tags: []
+    x: -200
+    y: 40
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: null
+    label: iol-4s-Roteador
+    node_definition: iol-xe-serial-4eth
+    parameters: {}
+    ram: null
+    tags: []
+    x: 0
+    y: 40
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Serial1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Serial1/1
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Serial1/2
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Serial1/3
+        mac_address: null
+        type: physical
+        slot: 7
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: null
+    label: ext-conn-NAT
+    node_definition: external_connector
+    parameters: {}
+    ram: null
+    tags: []
+    x: -480
+    y: 200
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+links:
+  - id: l0
+    n1: n0
+    n2: n2
+    i1: i0
+    i2: i2
+    conditioning: {}
+    label: ubuntu-PC2-ens2<->iol-l2-Switch-Ethernet0/1
+  - id: l1
+    n1: n2
+    n2: n3
+    i1: i3
+    i2: i1
+    conditioning: {}
+    label: iol-l2-Switch-Ethernet0/2<->iol-4s-Roteador-Ethernet0/0
+  - id: l2
+    n1: n1
+    n2: n4
+    i1: i0
+    i2: i0
+    conditioning: {}
+    label: ubuntu-PC1-ens2<->ext-conn-NAT-port
+lab:
+  description: ''
+  notes: ''
+  title: Lab at Sat 03:42 AM
+  version: 0.3.0
